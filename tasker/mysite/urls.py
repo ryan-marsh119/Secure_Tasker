@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# Ask Grok how '' in path() links to tasks.url.
+# Should I change the path to be path('api/tasks', include('urls)) ?
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("tasks.urls")),
