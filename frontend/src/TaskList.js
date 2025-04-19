@@ -27,6 +27,16 @@ const TaskList = () => {
 
     const [taskMessage, setTaskMessage] = useState('');
 
+    // Edit new Tasks
+
+    const [editTaskId, setEditTaskId] = useState(null);
+
+    const [editTitle, setEditTitle] = useState('');
+
+    const [editDescription, setEditDescription] = useState('');
+
+    const [editCompleted, setEditCompleted] = useState(false);
+
     const fetchTasks = async () => {
 
         const token = localStorage.getItem('accessToken');
@@ -87,17 +97,48 @@ const TaskList = () => {
         }
     };
 
-    const handleEditTask = async (e, task) => {
+    // Working on PUT calls.
+
+    const handleEditClick = async (task) => {
+        setEditTaskId(task.id);
+        setEditTitle(task.title);
+        setEditDescription(task.description);
+        setEditCompleted(task.completed);
+    }
+
+    const handleUpdateTask = async (e, id) =>{
+
         e.preventDefault();
+
+        setTaskMessage('');
 
         const token = localStorage.getItem('accessToken');
 
+        const path = `http://localhost:8000/api/tasks/${id}/`;
+
         try {
-            console.log('Inside handleEditTask() function! Editing task with id : ' + task);
-
+            const response = await axios.put(path, {
+                    "title": editTitle, "description": editDescription, "completed": editCompleted}, {
+                    headers:{
+                        Authorization: 'Bearer ' + token
+            }});
+            console.log('Task edited: ', response.data);
+            setTaskMessage('Task edited.');
+            cancelEding();
+            await fetchTasks();
         } catch (err) {
-
+            console.log('Edit task failed: ', err.response?.data?.detail || 'An error occurred');
+            setTaskMessage('Edit task failed: ' + (err.response?.data?.detail || 'An error occurred'));
+            cancelEdit();
         }
+ 
+    }
+
+    const cancelEdit = () => {
+        setEditTitle('');
+        setEditDescription('');
+        setEditCompleted(false);
+        setEditTaskId(null);
     }
 
     const handleLogout = () => {
@@ -126,11 +167,42 @@ const TaskList = () => {
                 tasks.length === 0 ? (
                     <p>No tasks available</p>
                 ) : (
+
                     <ul>
                         {tasks.map(task => (
                             <li key = {task.id}>
-                                {task.title}
-                                <button onClick={() => handleEditTask(task.id)}>edit</button>    
+                                {editTaskId === task.id ? (
+                                    <form className = "edit-task-form"
+                                        style={{display:'flex', flexDirection:'column', gap:'10px', maxWidth:'300px', margin:'0 auto'}}
+                                        onSubmit={(e) => handleUpdateTask(e, editTaskId)}>
+                                        <label>Title:</label>
+                                        <input
+                                            type='text'
+                                            value={editTitle}
+                                            onChange={(e) => setEditTitle(e.target.value)}
+                                        />
+                                        <label>Description:</label>
+                                        <textarea
+                                            value={editDescription}
+                                            onChange={(e) => setEditDescription(e.target.value)}
+                                        ></textarea>
+                                        <label>
+                                            <input 
+                                                type="checkbox"
+                                                checked={editCompleted}
+                                                onChange={(e) => setEditCompleted(e.target.checked)}
+                                            />
+                                            Completed
+                                        </label>
+                                        <button type="submit">Save</button>
+                                        <button type="button" onClick={cancelEdit}>Cancel</button>
+                                    </form>
+                                ) : (
+                                    <>
+                                        {task.title}
+                                        <button onClick={() => handleEditClick(task)}>Edit</button>
+                                    </> 
+                                )}
                             </li>
                         ))}
                     </ul>
@@ -163,6 +235,7 @@ const TaskList = () => {
                         <button type="submit">Add</button>
                     </form>)}
             </div>
+            
             {taskMessage && <p>{taskMessage}</p>}
             <button onClick={handleLogout}>Logout</button>
         </div>
