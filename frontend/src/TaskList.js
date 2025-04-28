@@ -124,7 +124,7 @@ const TaskList = () => {
             }});
             console.log('Task edited: ', response.data);
             setTaskMessage('Task edited.');
-            cancelEding();
+            cancelEdit();
             await fetchTasks();
         } catch (err) {
             console.log('Edit task failed: ', err.response?.data?.detail || 'An error occurred');
