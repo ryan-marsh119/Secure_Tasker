@@ -17,30 +17,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/tasks" element={<TaskList />} />
         <Route path="/" element={token ? <Navigate to="/tasks" /> : <Navigate to="/login" />} />
+
+        {/* Default route if user tries to access route that does not exist. */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
-
-
-    // <div className="App">
-    //     <Login />
-    //   </div>
-
-    // <div className="App">
-    //   <header className="App-header">
-    //     <img src={logo} className="App-logo" alt="logo" />
-    //     <p>
-    //       Edit <code>src/App.js</code> and save to reload.
-    //     </p>
-    //     <a
-    //       className="App-link"
-    //       href="https://reactjs.org"
-    //       target="_blank"
-    //       rel="noopener noreferrer"
-    //     >
-    //       Learn React
-    //     </a>
-    //   </header>
-    // </div>
   );
 }
 

@@ -55,8 +55,16 @@ const TaskList = () => {
                 }
             });
             setTasks(response.data);
+
         } catch (err) {
+            // console.log(err.response?.status);
             if (err.response?.status === 401) {
+                localStorage.removeItem('accessToken');
+                navigate('/login');
+                return;
+            }
+            if (err.response?.status === 500 && err.response?.data?.detail === "Failed to decrypt task data."){
+                setError("Failed to decrypt tasks. Please try logging in again.");
                 localStorage.removeItem('accessToken');
                 navigate('/login');
                 return;
@@ -88,9 +96,20 @@ const TaskList = () => {
             setCompleted(false);
             setAddTask(false);
             await fetchTasks();
+
         } catch (err) {
-            console.log('Add task failed: ', err.response?.data?.detail || err.message);
-            setTaskMessage('Add task failed: ' + (err.response?.data?.detail || 'An error occurred'));
+            const errors = err.response?.data;
+            const errorList = [];
+            for(const key in errors){
+                if(errors.hasOwnProperty(key)) {
+                    const value = errors[key];
+                    errorList.push(value);
+                }
+            }
+            let errorMessage = errorList.join('; ');
+
+            console.log('Total amount of errors: ', errorMessage);
+            setTaskMessage('Add task failed: ' + (errorMessage || 'An error occurred'));
             setTitle('');
             setDescription('');
             setCompleted(false);
@@ -126,25 +145,81 @@ const TaskList = () => {
             setTaskMessage('Task edited.');
             cancelEdit();
             await fetchTasks();
+
         } catch (err) {
-            console.log('Edit task failed: ', err.response?.data?.detail || 'An error occurred');
-            setTaskMessage('Edit task failed: ' + (err.response?.data?.detail || 'An error occurred'));
+            const errors = err.response?.data;
+            const errorList = [];
+            for(const key in errors){
+                if(errors.hasOwnProperty(key)) {
+                    const value = errors[key];
+                    errorList.push(value);
+                }
+            }
+            let errorMessage = errorList.join('; ');
+
+            console.log('Edit task failed: ', errorMessage || 'An error occurred');
+            setTaskMessage('Edit task failed: ' + (errorMessage || 'An error occurred'));
             cancelEdit();
         }
  
     }
+
+    const handleDelete = async (e, id) =>{
+        e.preventDefault();
+
+        setTaskMessage('');
+
+        const token = localStorage.getItem('accessToken');
+
+        const path = `http://localhost:8000/api/tasks/${id}/`;
+
+        try{
+            const response = await axios.delete(path, {
+                    headers:{
+                        Authorization: 'Bearer ' + token
+            }});
+            console.log('Task deleted: ', response.data);
+            setTaskMessage('Task deleted.')
+            cancelEdit();
+            await fetchTasks();
+
+        } catch(err) {
+            const errors = err.response?.data;
+            const errorList = [];
+            for(const key in errors){
+                if(errors.hasOwnProperty(key)){
+                    const value = errors[key];
+                    errorList.push(value);
+                }
+            }
+            let errorMessage = errorList.join('; ');
+
+            console.log('Delete task failed: ', errorMessage || 'An error occurred');
+            setTaskMessage('Deletetask failed: ' + (errorMessage || 'An error occurred'));
+            cancelEdit();
+        }
+
+    };
+
+    const cancelAdd = () => {
+        setTitle('');
+        setDescription('');
+        setCompleted(false);
+        setTaskMessage('');
+        setAddTask(false);
+    };
 
     const cancelEdit = () => {
         setEditTitle('');
         setEditDescription('');
         setEditCompleted(false);
         setEditTaskId(null);
-    }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('accessToken');
         navigate('/login');
-    }
+    };
 
     const showForm = () =>{
         setTaskMessage('');
@@ -195,6 +270,7 @@ const TaskList = () => {
                                             Completed
                                         </label>
                                         <button type="submit">Save</button>
+                                        <button type="button" onClick={(e) => handleDelete(e, editTaskId)}>Delete</button>
                                         <button type="button" onClick={cancelEdit}>Cancel</button>
                                     </form>
                                 ) : (
@@ -233,6 +309,7 @@ const TaskList = () => {
                             />
                         Completed</label>
                         <button type="submit">Add</button>
+                        <button type="button" onClick={cancelAdd}>Cancel</button>
                     </form>)}
             </div>
             
