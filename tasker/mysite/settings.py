@@ -28,7 +28,7 @@ SECRET_KEY = env.str("SECRET_KEY")
 FIELD_ENCRYPTION_KEY = env.str("ENCRYPTION_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -160,11 +160,18 @@ REST_FRAMEWORK = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters":{
+        "verbose": {
+            "format": "{asctime} {message} {name} {levelname}",
+            "style": "{",
+        },
+    },
     "handlers":{
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": os.path.join(BASE_DIR, "api.log"),
+            "formatter": "verbose",
         },
     },
     "loggers":{
