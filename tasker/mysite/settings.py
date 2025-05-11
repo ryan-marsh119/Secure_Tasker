@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from environs import Env
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -91,13 +92,17 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'tasker_db',
-        'USER': 'postgres',
-        'PASSWORD': 'Coder119!',
-        'HOST': 'localhost',
-        'PORT': '5434',
+        dj_database_url.config(default=env.str('DATABASE_URL'))
     }
+
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'tasker_db',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'Coder119!',
+    #     'HOST': 'localhost',
+    #     'PORT': '5434',
+    # }
 }
 
 
