@@ -107,3 +107,5 @@ zoneinfo._common.ZoneInfoNotFoundError: 'No time zone found with key UTC'
 2025-05-14 05:28:04,918 Not Found: / django.request WARNING
 2025-05-15 04:12:40,416 Not Found: / django.request WARNING
 2025-05-15 04:18:48,373 Not Found: / django.request WARNING
+2025-05-15 19:27:51,696 Unauthorized: /api/tasks/ django.request WARNING
+2025-05-15 19:27:51,711 Unauthorized: /api/tasks/ django.request WARNING
