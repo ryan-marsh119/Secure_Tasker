@@ -29,7 +29,7 @@ SECRET_KEY = env.str("SECRET_KEY")
 FIELD_ENCRYPTION_KEY = env.str("ENCRYPTION_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -91,10 +91,12 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        dj_database_url.config(default=env.str('DATABASE_URL'))
-    }
-
+    'default': 
+        dj_database_url.config(
+            default=env.str('DATABASE_URL_DEFAULT'),
+            conn_max_age=600
+            )
+    
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
     #     'NAME': 'tasker_db',
